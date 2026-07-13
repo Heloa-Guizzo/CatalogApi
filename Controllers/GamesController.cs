@@ -16,43 +16,38 @@ public class GamesController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Create(CreateGameRequest request)
+    public async Task<IActionResult> Create(CreateGameRequest request)
     {
-        var game = _service.Create(request);
+        var game = await _service.CreateAsync(request);
+
         return Ok(game);
     }
 
     [HttpGet]
-    public IActionResult Get()
+    public async Task<IActionResult> Get()
     {
-        return Ok(_service.GetAll());
+        return Ok(await _service.GetAllAsync());
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var game = await _service.GetByIdAsync(id);
+
+        return Ok(game);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(Guid id, UpdateGameRequest request)
+    {
+        return Ok(await _service.UpdateAsync(id, request));
     }
 
     [HttpDelete("{id}")]
-    public IActionResult Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
-        var success = _service.Delete(id);
-
-        if (!success)
-            return NotFound();
+        await _service.DeleteAsync(id);
 
         return NoContent();
     }
-
-    [HttpPost("purchase")]
-    public IActionResult Purchase(PurchaseRequest request)
-    {
-        var game = _service.GetById(request.GameId);
-
-        if (game == null)
-            return NotFound("Game not found");
-
-        return Ok(new
-        {
-            message = "Compra iniciada com sucesso",
-            game = game.Name
-        });
-    }
-
 }
-

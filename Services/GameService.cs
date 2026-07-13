@@ -1,14 +1,20 @@
-﻿
+﻿using CatalogAPI.DTOs;
+using CatalogAPI.Exceptions;
 using CatalogAPI.Models;
-using CatalogAPI.DTOs;
+using CatalogAPI.Repositories;
 
 namespace CatalogAPI.Services;
 
 public class GameService
 {
-    private static List<Game> games = new();
+    private readonly IGameRepository _repository;
 
-    public Game Create(CreateGameRequest request)
+    public GameService(IGameRepository repository)
+    {
+        _repository = repository;
+    }
+
+    public async Task<Game> CreateAsync(CreateGameRequest request)
     {
         var game = new Game
         {
@@ -18,29 +24,52 @@ public class GameService
             Genre = request.Genre
         };
 
-        games.Add(game);
+        await _repository.AddAsync(game);
+
         return game;
     }
 
-    public List<Game> GetAll()
+    public async Task<IEnumerable<Game>>
+        GetAllAsync()
     {
-        return games;
+        return await _repository.GetAllAsync();
+    }
+    public async Task<Game> GetByIdAsync(Guid id)
+    {
+        var game = await _repository.GetByIdAsync(id);
+
+        if (game == null) throw new NotFoundException("Game not found.");
+
+        return game;
     }
 
-    public Game? GetById(Guid id)
-    {
-        return games.FirstOrDefault(x => x.Id == id);
-    }
 
-    public bool Delete(Guid id)
+    public async Task<Game> UpdateAsync(Guid id,UpdateGameRequest request)
     {
-        var game = games.FirstOrDefault(x => x.Id == id);
+        var game =
+            await _repository.GetByIdAsync(id);
 
         if (game == null)
-            return false;
+            throw new NotFoundException(
+                "Game not found.");
 
-        games.Remove(game);
-        return true;
+        game.Name = request.Name;
+        game.Price = request.Price;
+        game.Genre = request.Genre;
+
+        await _repository.UpdateAsync(game);
+
+        return game;
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var game = await _repository.GetByIdAsync(id);
+
+        if (game == null)
+            throw new NotFoundException(
+                "Game not found.");
+
+        await _repository.DeleteAsync(game);
     }
 }
-

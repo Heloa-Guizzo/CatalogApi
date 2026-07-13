@@ -1,0 +1,13 @@
+﻿namespace CatalogAPI.Models
+{
+    public class UserLibrary
+    {
+        public Guid Id { get; set; }
+
+        public Guid UserId { get; set; }
+
+        public Guid GameId { get; set; }
+
+        public DateTime PurchasedAt { get; set; }
+    }
+}
