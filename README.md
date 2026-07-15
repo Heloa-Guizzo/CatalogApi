@@ -18,7 +18,6 @@ The service also subscribes to payment events in order to update user libraries 
 - Game deletion
 - Game listing
 - Purchase requests
-- User library management
 
 ---
 
@@ -54,8 +53,7 @@ Example:
 ```json
 {
   "userId": "guid",
-  "gameId": "guid",
-  "price": 99.90
+  "gameId": "guid"
 }
 ```
 
