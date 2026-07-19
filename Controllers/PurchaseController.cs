@@ -3,6 +3,9 @@ using CatalogAPI.Services;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Events;
+using CatalogAPI.Models;
+using CatalogAPI.Repositories;
+
 
 namespace CatalogAPI.Controllers;
 
@@ -22,27 +25,21 @@ public class PurchaseController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(
-        PurchaseRequest request)
+    public async Task<IActionResult> Create(PurchaseRequest request)
     {
-        Console.WriteLine("PASSO 1");
-
-        var game =
-            await _service.GetByIdAsync(
-                request.GameId);
-
-        Console.WriteLine("PASSO 2");
-
-        Console.WriteLine(
-            $"PUBLICANDO OrderPlacedEvent - GameId: {request.GameId}");
+        Console.WriteLine($"[CatalogAPI] Publishing OrderPlacedEvent | UserId: {request.UserId} | GameId: {request.GameId}");
 
         await _publish.Publish(
             new OrderPlacedEvent(
                 request.UserId,
                 request.GameId,
-                game.Price));
+                request.Price));
 
-        Console.WriteLine("PASSO 3");
+        Console.WriteLine(
+            $"LIBRARY COUNT: {UserLibraryStorage.Games.Count}");
+
+        Console.WriteLine(
+            $"[CatalogAPI] Game added to library | UserId: {request.UserId} | GameId: {request.GameId}");
 
         return Ok("Order sent for payment");
     }

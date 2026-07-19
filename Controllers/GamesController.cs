@@ -1,4 +1,5 @@
 ﻿using CatalogAPI.DTOs;
+using CatalogAPI.Repositories;
 using CatalogAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -49,5 +50,26 @@ public class GamesController : ControllerBase
         await _service.DeleteAsync(id);
 
         return NoContent();
+    }
+
+    [HttpGet("library")]
+    public IActionResult GetLibrary()
+    {
+        return Ok(UserLibraryStorage.Games);
+    }
+
+    [HttpGet("library/{userId}")]
+    public async Task<IActionResult> GetLibraryByUser(Guid userId)
+    {
+        var gameIds = UserLibraryStorage.Games
+            .Where(x => x.UserId == userId)
+            .Select(x => x.GameId)
+            .ToList();
+
+        var games = await _service.GetAllAsync();
+
+        return Ok(
+            games.Where(g => gameIds.Contains(g.Id))
+        );
     }
 }

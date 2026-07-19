@@ -3,23 +3,24 @@ using CatalogAPI.Repositories;
 using MassTransit;
 using Shared.Events;
 
-namespace CatalogAPI.Consumers;
-
-public class PaymentProcessedConsumer: IConsumer<PaymentProcessedEvent>
+public class PaymentProcessedConsumer :
+    IConsumer<PaymentProcessedEvent>
 {
-    private readonly IUserLibraryRepository _libraryRepository;
-
-    public PaymentProcessedConsumer(IUserLibraryRepository libraryRepository)
+   
+    public Task Consume(ConsumeContext<PaymentProcessedEvent> context)
     {
-        _libraryRepository = libraryRepository;
-    }
+        Console.WriteLine(
+            $"[CatalogAPI] PaymentProcessedEvent received | UserId: {context.Message.UserId} | GameId: {context.Message.GameId} | Approved: {context.Message.Approved}");
 
-    public async Task Consume(ConsumeContext<PaymentProcessedEvent> context)
-    {
         if (!context.Message.Approved)
-            return;
+        {
+            Console.WriteLine(
+                $"[CatalogAPI] Payment was rejected. Game will not be added to user library.");
 
-        await _libraryRepository.AddAsync(
+            return Task.CompletedTask;
+        }
+
+        UserLibraryStorage.Games.Add(
             new UserLibrary
             {
                 Id = Guid.NewGuid(),
@@ -27,6 +28,13 @@ public class PaymentProcessedConsumer: IConsumer<PaymentProcessedEvent>
                 GameId = context.Message.GameId,
                 PurchasedAt = DateTime.UtcNow
             });
+
+        Console.WriteLine(
+            $"[CatalogAPI] Game {context.Message.GameId} successfully added to library for user {context.Message.UserId}");
+
+        Console.WriteLine(
+            $"[CatalogAPI] Current library size: {UserLibraryStorage.Games.Count}");
+
+        return Task.CompletedTask;
     }
 }
-

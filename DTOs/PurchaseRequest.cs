@@ -4,5 +4,6 @@
     {
         public Guid GameId { get; set; }
         public Guid UserId { get; set; }
+        public decimal Price { get; set; }
     }
 }
