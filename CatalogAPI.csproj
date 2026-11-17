@@ -22,4 +22,14 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="CatalogAPI.Tests\**" />
+    <EmbeddedResource Remove="CatalogAPI.Tests\**" />
+    <None Remove="CatalogAPI.Tests\**" />
+  </ItemGroup>
+
 </Project>
