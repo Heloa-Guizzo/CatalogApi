@@ -103,3 +103,5 @@ jobs:
         run: |
           kubectl set image deployment/catalog-api catalog-api=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }} -n gamestore
           kubectl rollout status deployment/catalog-api -n gamestore
+
+          
